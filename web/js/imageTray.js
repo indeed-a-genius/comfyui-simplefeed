@@ -1,4 +1,4 @@
-﻿/**
+/**
  * A simple image feed tray and lightbox for ComfyUI.
  * Version: 1.2.0
  * Repository: https://github.com/tachyon-beep/comfyui-simplefeed
@@ -271,7 +271,7 @@ class Lightbox {
       // Reset pan and scale if at minimum scale
       this.panX = 0;
       this.panY = 0;
-      this.#img.style.transform = `scale(${this.#minScale})`;
+      this.#img.style.transform = `scale(1)`;
     } else {
       // Constrain panX and panY within bounds
       this.panX = Math.min(Math.max(this.panX, -this.maxPanX), this.maxPanX);
@@ -533,6 +533,43 @@ class Lightbox {
       }
 
       this.#img.style.opacity = 1;
+    // Set .lightbox__main size
+    const main = this.#el.querySelector('.lightbox__main');
+    if (main) {
+      main.style.width = '90%';
+      main.style.height = '90%';
+    }
+
+    // Add floppy disk icon to save image
+    if (main && !this.#link.querySelector('.lightbox-save-icon')) {
+      const saveIconWrapper = document.createElement('div');
+      saveIconWrapper.style.position = 'absolute';
+      saveIconWrapper.style.top = '10px';
+      saveIconWrapper.style.right = '10px';
+      saveIconWrapper.style.zIndex = '9999';
+
+      const saveIcon = document.createElement('div');
+      saveIcon.className = 'lightbox-save-icon';
+      saveIcon.textContent = '💾';
+      saveIcon.style.cssText = 'font-size: 26px; color: white; background: rgba(0,0,0,0.5); padding: 6px; border-radius: 6px; cursor: pointer; text-align: center;';
+
+      saveIcon.onclick = () => {
+        const a = document.createElement('a');
+        a.href = this.#img.src;
+        a.download = 'image.png';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      };
+
+      saveIconWrapper.appendChild(saveIcon);
+      this.#link.appendChild(saveIconWrapper);
+    }
+
+    // Set initial image transform to scale(1)
+    this.#img.style.transform = 'scale(1)';
+
     } catch (err) {
       console.error("Failed to load image:", img, err);
       this.#img.alt = "Failed to load image";
